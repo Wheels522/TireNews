@@ -1,0 +1,97 @@
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TireNews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: grey;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #333;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            color: grey;
+        }
+        h1 {
+            text-align: center;
+            color: grey;
+            font-size: 70px;
+        }
+        .article {
+            border-bottom: 1px solid #555;
+            padding: 10px 0;
+        }
+        .article:last-child {
+            border-bottom: none;
+        }
+        .article h2 {
+            margin: 0 0 10px;
+            color: grey;
+        }
+        .article p {
+            margin: 0 0 10px;
+            color: grey;
+        }
+        .article a {
+            color: grey;
+            text-decoration: none;
+        }
+        .article a:hover {
+            text-decoration: underline;
+        }
+    </style>
+   
+        <h1>TireNews</h1>
+        <div id="news"></div>
+    <script>
+        const apiKey = 'pub_45249348351d00bb67dbdf115657c3abcac17';
+        const apiUrl = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=us&language=en`;
+
+        async function fetchNews() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                displayNews(data.results);
+            } catch (error) {
+                console.error('Error fetching news:', error);
+                document.getElementById('news').innerHTML = '<p>Failed to load news articles. Please try again later.</p>';
+            }
+        }
+
+        function displayNews(articles) {
+            const newsContainer = document.getElementById('news');
+            newsContainer.innerHTML = '';
+
+            articles.forEach(article => {
+                const articleElement = document.createElement('div');
+                articleElement.classList.add('article');
+
+                const titleElement = document.createElement('h2');
+                titleElement.textContent = article.title;
+
+                const descriptionElement = document.createElement('p');
+                descriptionElement.textContent = article.description || 'No description available.';
+
+                const linkElement = document.createElement('a');
+                linkElement.href = article.link;
+                linkElement.textContent = 'Read more';
+                linkElement.target = '_blank';
+
+                articleElement.appendChild(titleElement);
+                articleElement.appendChild(descriptionElement);
+                articleElement.appendChild(linkElement);
+
+                newsContainer.appendChild(articleElement);
+            });
+        }
+
+        fetchNews();
+    </script>
