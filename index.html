@@ -1,97 +1,78 @@
-<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TireNews</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: black;
-            color: grey;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background: #333;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            color: grey;
-        }
-        h1 {
-            text-align: center;
-            color: grey;
-            font-size: 70px;
-        }
-        .article {
-            border-bottom: 1px solid #555;
-            padding: 10px 0;
-        }
-        .article:last-child {
-            border-bottom: none;
-        }
-        .article h2 {
-            margin: 0 0 10px;
-            color: grey;
-        }
-        .article p {
-            margin: 0 0 10px;
-            color: grey;
-        }
-        .article a {
-            color: grey;
-            text-decoration: none;
-        }
-        .article a:hover {
-            text-decoration: underline;
-        }
-    </style>
-   
-        <h1>TireNews</h1>
-        <div id="news"></div>
-    <script>
-        const apiKey = 'pub_45249348351d00bb67dbdf115657c3abcac17';
-        const apiUrl = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=us&language=en`;
+<body style="font-family: Arial, sans-serif; background-color: black; color: grey; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+    <h1 style="text-align: center; color: grey; font-size: 70px;">TireNews</h1>
+    <input type="text" id="searchInput" placeholder="Search news..." style="width: 500px; padding: 10px; margin-bottom: 20px; font-size: 16px; text-align: center; border-radius: 20px;">
+    <div id="news"></div>
+</div>
+<script>
+    const apiKey = '7fdb1482d8f04e1eb3b8d4421ea07cf9';
+    const apiUrl = `https://newsapi.org/v2/everything?apiKey=${apiKey}&language=en`;
 
-        async function fetchNews() {
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                displayNews(data.results);
-            } catch (error) {
-                console.error('Error fetching news:', error);
-                document.getElementById('news').innerHTML = '<p>Failed to load news articles. Please try again later.</p>';
-            }
+    document.getElementById('searchInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            const query = event.target.value;
+            fetchNews(query);
+        }
+    });
+
+    async function fetchNews(query) {
+        try {
+            const response = await fetch(`${apiUrl}&q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            displayNews(data.articles);
+        } catch (error) {
+            console.error('Error fetching news:', error);
+            document.getElementById('news').innerHTML = '<p>Failed to load news articles. Please try again later.</p>';
+        }
+    }
+
+    function displayNews(articles) {
+        const newsContainer = document.getElementById('news');
+        newsContainer.innerHTML = '';
+
+        if (articles.length === 0) {
+            newsContainer.innerHTML = '<p>No articles found for this search :(</p>';
+            return;
         }
 
-        function displayNews(articles) {
-            const newsContainer = document.getElementById('news');
-            newsContainer.innerHTML = '';
+        articles.forEach(article => {
+            const articleElement = document.createElement('div');
+            articleElement.style.borderBottom = '1px solid #555';
+            articleElement.style.padding = '10px 0';
 
-            articles.forEach(article => {
-                const articleElement = document.createElement('div');
-                articleElement.classList.add('article');
+            const titleElement = document.createElement('h2');
+            titleElement.textContent = article.title;
+            titleElement.style.margin = '0 0 10px';
+            titleElement.style.color = 'grey';
 
-                const titleElement = document.createElement('h2');
-                titleElement.textContent = article.title;
+            const descriptionElement = document.createElement('p');
+            descriptionElement.textContent = article.description || 'No description available.';
+            descriptionElement.style.margin = '0 0 10px';
+            descriptionElement.style.color = 'grey';
 
-                const descriptionElement = document.createElement('p');
-                descriptionElement.textContent = article.description || 'No description available.';
+            const linkElement = document.createElement('a');
+            linkElement.href = article.url;
+            linkElement.textContent = 'Read more';
+            linkElement.target = '_blank';
+            linkElement.style.color = '#1a0dab';
+            linkElement.style.textDecoration = 'none';
 
-                const linkElement = document.createElement('a');
-                linkElement.href = article.link;
-                linkElement.textContent = 'Read more';
-                linkElement.target = '_blank';
-
-                articleElement.appendChild(titleElement);
-                articleElement.appendChild(descriptionElement);
-                articleElement.appendChild(linkElement);
-
-                newsContainer.appendChild(articleElement);
+            linkElement.addEventListener('mouseover', () => {
+                linkElement.style.textDecoration = 'underline';
             });
-        }
+            linkElement.addEventListener('mouseout', () => {
+                linkElement.style.textDecoration = 'none';
+            });
 
-        fetchNews();
-    </script>
+            articleElement.appendChild(titleElement);
+            articleElement.appendChild(descriptionElement);
+            articleElement.appendChild(linkElement);
+
+            // Append each new article at the bottom
+            newsContainer.appendChild(articleElement);
+        });
+    }
+
+    // Fetch latest news on page load
+    fetchNews('latest');
+</script>
+</body>
